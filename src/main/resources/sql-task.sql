@@ -117,34 +117,30 @@
 
 14. CREATE TABLE IF NOT EXISTS customers
     (
-        id        UUID,
-        first_name VARCHAR(30),
-        last_name  VARCHAR(30),
-        email     VARCHAR(30),
-        phone     VARCHAR(20)
+        id        UUID DEFAULT gen_random_uuid()  PRIMARY KEY,
+        first_name VARCHAR(30) NOT NULL,
+        last_name  VARCHAR(30) NOT NULL,
+        email     VARCHAR(30) NOT NULL UNIQUE,
+        phone     VARCHAR(20) NOT NULL
     );
 
-ALTER TABLE customers
-    ALTER COLUMN id SET DEFAULT gen_random_uuid(),
-    ADD PRIMARY KEY (id),
-    ADD CONSTRAINT first_name_check CHECK (first_name ~* '^[A-Za-z]+$'),
-    ADD CONSTRAINT last_name_check CHECK (last_name ~* '^[A-Za-z]+$'),
-    ADD CONSTRAINT email_check CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
-    ADD CONSTRAINT phone_check CHECK (phone LIKE '+%'),
-    ADD CONSTRAINT email_unique UNIQUE (email);
+    ALTER TABLE customers
+        ADD CONSTRAINT first_name_check CHECK (first_name ~* '^[A-Za-z]+$'),
+        ADD CONSTRAINT last_name_check CHECK (last_name ~* '^[A-Za-z]+$'),
+        ADD CONSTRAINT email_check CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
+        ADD CONSTRAINT phone_check CHECK (phone LIKE '+%');
 
 15. CREATE TABLE IF NOT EXISTS orders
     (
-        id         UUID,
-        customer_id UUID,
-        quantity   INTEGER
+        id         UUID DEFAULT gen_random_uuid()  PRIMARY KEY,
+        customer_id UUID NOT NULL REFERENCES customers (id),
+        quantity   INTEGER   NOT NULL
     );
 
     ALTER TABLE orders
-        ALTER COLUMN id SET DEFAULT gen_random_uuid(),
-        ADD PRIMARY KEY (id),
-        ADD CONSTRAINT quantity_check CHECK (quantity > 0),
-        ADD CONSTRAINT fk_customer_id FOREIGN KEY (customer_id) REFERENCES customers (id);
+        ADD CONSTRAINT quantity_check CHECK (quantity > 0);
+
+
 
 16. INSERT INTO customers (first_name, last_name, email, phone)
         VALUE ('Ivan', 'Ivanov', 'ivanov@gmail.com', '+375291234567'),
